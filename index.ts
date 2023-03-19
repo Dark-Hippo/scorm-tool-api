@@ -1,7 +1,9 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import fileUpload, { FileArray } from 'express-fileupload';
+import fileUpload, { FileArray, UploadedFile } from 'express-fileupload';
+import JSZip from 'jszip';
+import { promises as fsPromises } from 'fs';
 
 dotenv.config();
 
@@ -17,16 +19,42 @@ server.get('/health', (req: Request, res: Response) => {
 
 server.post('/scorm/validate', async (req: Request, res: Response) => {
   try {
-    if (!req.files) {
-      res.status(400).send({ message: 'No file sent' });
+    if (!req?.files) {
+      res.status(400).send({ message: 'No file(s) sent', isValid: false });
     }
 
-    const files = req.files;
-    console.log(files);
+    if (!req?.files?.scorm) {
+      res.status(400).send({ message: "Key 'scorm' required", isValid: false });
+    }
 
-    // Unzip to system temp dir
-    // Check for 'scormcontent' directory
-    // Check for index.html file inside directory
+    if (Array.isArray(req.files?.scorm)) {
+      res
+        .status(400)
+        .send({ message: 'One file at a time, please', isValid: false });
+    }
+
+    const file = req.files?.scorm as UploadedFile;
+
+    if (file.mimetype !== 'application/zip') {
+      res.status(400).send({
+        message: "File must be of type 'application/zip'",
+        isValid: false,
+      });
+    }
+
+    const contents = await JSZip.loadAsync(file.data);
+
+    // check for index.html file
+    if (
+      !Object.keys(contents.files).find((f) =>
+        f.endsWith('scormcontent/index.html')
+      )
+    ) {
+      res.status(400).send({
+        message: 'Supplied file is not a valid SCORM file',
+        isValid: false,
+      });
+    }
 
     res.status(200).send({ isValid: true });
   } catch (error) {
