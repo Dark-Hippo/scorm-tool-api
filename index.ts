@@ -14,21 +14,25 @@ server.use(cors());
 server.use(fileUpload());
 
 server.get('/health', (req: Request, res: Response) => {
-  res.send({ date: new Date() });
+  return res.send({ date: new Date() });
 });
 
 server.post('/scorm/validate', async (req: Request, res: Response) => {
   try {
     if (!req?.files) {
-      res.status(400).send({ message: 'No file(s) sent', isValid: false });
+      return res
+        .status(400)
+        .send({ message: 'No file(s) sent', isValid: false });
     }
 
     if (!req?.files?.scorm) {
-      res.status(400).send({ message: "Key 'scorm' required", isValid: false });
+      return res
+        .status(400)
+        .send({ message: "Key 'scorm' required", isValid: false });
     }
 
     if (Array.isArray(req.files?.scorm)) {
-      res
+      return res
         .status(400)
         .send({ message: 'One file at a time, please', isValid: false });
     }
@@ -36,7 +40,7 @@ server.post('/scorm/validate', async (req: Request, res: Response) => {
     const file = req.files?.scorm as UploadedFile;
 
     if (file.mimetype !== 'application/zip') {
-      res.status(400).send({
+      return res.status(400).send({
         message: "File must be of type 'application/zip'",
         isValid: false,
       });
@@ -50,15 +54,15 @@ server.post('/scorm/validate', async (req: Request, res: Response) => {
         f.endsWith('scormcontent/index.html')
       )
     ) {
-      res.status(400).send({
+      return res.status(400).send({
         message: 'Supplied file is not a valid SCORM file',
         isValid: false,
       });
     }
 
-    res.status(200).send({ isValid: true });
+    return res.status(200).send({ isValid: true });
   } catch (error) {
-    res.status(500).send(error);
+    return res.status(500).send(error);
   }
 });
 
