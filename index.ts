@@ -39,20 +39,22 @@ server.post('/scorm/validate', async (req: Request, res: Response) => {
 
     const file = req.files?.scorm as UploadedFile;
 
-    if (file.mimetype !== 'application/zip') {
+    if (
+      !['application/zip', 'application/x-zip-compressed'].includes(
+        file.mimetype
+      )
+    ) {
       return res.status(400).send({
-        message: "File must be of type 'application/zip'",
+        message: `File must be of type 'application/zip', ${file.mimetype} is not valid`,
         isValid: false,
       });
     }
 
     const contents = await JSZip.loadAsync(file.data);
 
-    // check for index.html file
+    // check for imsmanifest file
     if (
-      !Object.keys(contents.files).find((f) =>
-        f.endsWith('scormcontent/index.html')
-      )
+      !Object.keys(contents.files).find((f) => f.endsWith('imsmanifest.xml'))
     ) {
       return res.status(400).send({
         message: 'Supplied file is not a valid SCORM file',
