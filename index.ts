@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import fileUpload, { UploadedFile } from 'express-fileupload';
-import JSZip from 'jszip';
+import JSZip, { JSZipObject } from 'jszip';
 import { v4 as uuid4 } from 'uuid';
 import path from 'path';
 import { mkdir } from 'fs/promises';
@@ -15,6 +15,10 @@ const port = process.env.PORT || 3001;
 
 server.use(cors());
 server.use(fileUpload());
+
+const log = (text:string) => {
+  console.log(text);
+}
 
 server.get('/health', (req: Request, res: Response) => {
   return res.send({ date: new Date() });
@@ -117,24 +121,38 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
     }
 
     const newSiteId = uuid4();
+    const newSiteDirectory = path.join('./content', newSiteId);
 
-    await mkdir(path.join('./content', newSiteId));
+    await mkdir(newSiteDirectory);
 
-    for (const file in contents.files) {
-      if (Object.prototype.hasOwnProperty.call(contents.files, file)) {
-        const element = contents.files[file];
-        const filename = element.name;
+    const filesToSave = [];
+    const writeFile = (file: JSZipObject, directory: string) => {
+      const newFileWithPath = path.join(directory, file.name);
+      
+      return new Promise(async resolve => {
+        await mkdir(path.dirname(newFileWithPath), {recursive: true})
+        const out = createWriteStream(newFileWithPath);
+        file.nodeStream().pipe(out);
+        out.on('finish', () => {
+          log(`File ${newFileWithPath} created.`);
+          resolve(newFileWithPath);
+        });
+      });
+    }
+    for (const key in contents.files) {
+        const file = contents.files[key];
+        const filename = file.name;
+        
         if(!path.extname(filename)) {
           continue;
         }
-        console.log(`Writing ${path.dirname(filename)}`);
-        await mkdir(path.dirname(filename), {recursive: true})
-        console.log(`Writing ${filename}`);
-        element.nodeStream().pipe(createWriteStream(filename)).on('finish', () => {console.log(`Written file ${element.name}`)});
-      }
+        filesToSave.push(writeFile(file, newSiteDirectory));
     }
 
-    return res.status(200).send({ isValid: true });
+    const savedFiles = await Promise.all(filesToSave);
+    console.log(savedFiles);
+    
+    return res.status(200).send({ success: true });
   } catch (error) {
     return res.status(500).send(error);
   }
