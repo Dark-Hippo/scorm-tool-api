@@ -129,13 +129,17 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
     const writeFile = (file: JSZipObject, directory: string) => {
       const newFileWithPath = path.join(directory, file.name);
       
-      return new Promise(async resolve => {
+      return new Promise(async (resolve, reject) => {
         await mkdir(path.dirname(newFileWithPath), {recursive: true})
         const out = createWriteStream(newFileWithPath);
         file.nodeStream().pipe(out);
         out.on('finish', () => {
           log(`File ${newFileWithPath} created.`);
           resolve(newFileWithPath);
+        });
+        out.on('error', (err: Error) => {
+          log(err.message)
+          reject(`Error writing ${newFileWithPath}`);
         });
       });
     }
@@ -149,8 +153,7 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
         filesToSave.push(writeFile(file, newSiteDirectory));
     }
 
-    const savedFiles = await Promise.all(filesToSave);
-    console.log(savedFiles);
+    await Promise.all(filesToSave);
     
     return res.status(200).send({ success: true });
   } catch (error) {
