@@ -2,14 +2,8 @@ import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import fileUpload, { UploadedFile } from 'express-fileupload';
-import JSZip, { JSZipObject } from 'jszip';
-import { v4 as uuid4 } from 'uuid';
-import path from 'path';
-import { mkdir } from 'fs/promises';
-import { createWriteStream } from 'fs';
 import { hasManifestFile } from './src/validation/hasManifestFile';
 import { isZipFile } from './src/validation/isZipFile';
-import { log } from './src/utils/logger';
 import { saveScormToContent } from './src/utils/saveScorm';
 
 dotenv.config();
@@ -101,7 +95,7 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
         isValid: false,
       });
     }
-    log('About to save scorm files');
+
     await saveScormToContent(file);
 
     return res.status(200).send({ success: true });
