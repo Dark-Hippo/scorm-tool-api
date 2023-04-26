@@ -7,6 +7,7 @@ import { v4 as uuid4 } from 'uuid';
 import path from 'path';
 import { mkdir } from 'fs/promises';
 import { createWriteStream } from 'fs';
+import { hasManifest } from './src/validation/hasManifestFile';
 
 dotenv.config();
 
@@ -57,12 +58,7 @@ server.post('/scorm/validate', async (req: Request, res: Response) => {
       });
     }
 
-    const contents = await JSZip.loadAsync(file.data);
-
-    // check for imsmanifest file
-    if (
-      !Object.keys(contents.files).find((f) => f.endsWith('imsmanifest.xml'))
-    ) {
+    if (!(await hasManifest(file))) {
       return res.status(400).send({
         message: 'Supplied file is not a valid SCORM file',
         isValid: false,
