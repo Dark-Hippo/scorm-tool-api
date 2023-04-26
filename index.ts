@@ -9,6 +9,8 @@ import { mkdir } from 'fs/promises';
 import { createWriteStream } from 'fs';
 import { hasManifestFile } from './src/validation/hasManifestFile';
 import { isZipFile } from './src/validation/isZipFile';
+import { log } from './src/utils/logger';
+import { saveScormToContent } from './src/utils/saveScorm';
 
 dotenv.config();
 
@@ -17,10 +19,6 @@ const port = process.env.PORT || 3001;
 
 server.use(cors());
 server.use(fileUpload());
-
-const log = (text: string) => {
-  console.log(text);
-};
 
 server.get('/health', (req: Request, res: Response) => {
   return res.send({ date: new Date() });
@@ -90,59 +88,21 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
 
     const file = req.files?.scorm as UploadedFile;
 
-    if (isZipFile(file)) {
+    if (!isZipFile(file)) {
       return res.status(400).send({
         message: `File must be of type 'application/zip', ${file.mimetype} is not valid`,
         isValid: false,
       });
     }
 
-    const contents = await JSZip.loadAsync(file.data, { createFolders: true });
-
-    // combine this with above for a single validate function
-    if (
-      !Object.keys(contents.files).find((f) => f.endsWith('imsmanifest.xml'))
-    ) {
+    if (!hasManifestFile(file)) {
       return res.status(400).send({
         message: 'Supplied file is not a valid SCORM file',
         isValid: false,
       });
     }
-
-    const newSiteId = uuid4();
-    const newSiteDirectory = path.join('./content', newSiteId);
-
-    await mkdir(newSiteDirectory);
-
-    const filesToSave = [];
-    const writeFile = (file: JSZipObject, directory: string) => {
-      const newFileWithPath = path.join(directory, file.name);
-
-      return new Promise(async (resolve, reject) => {
-        await mkdir(path.dirname(newFileWithPath), { recursive: true });
-        const out = createWriteStream(newFileWithPath);
-        file.nodeStream().pipe(out);
-        out.on('finish', () => {
-          log(`File ${newFileWithPath} created.`);
-          resolve(newFileWithPath);
-        });
-        out.on('error', (err: Error) => {
-          log(err.message);
-          reject(`Error writing ${newFileWithPath}`);
-        });
-      });
-    };
-    for (const key in contents.files) {
-      const file = contents.files[key];
-      const filename = file.name;
-
-      if (!path.extname(filename)) {
-        continue;
-      }
-      filesToSave.push(writeFile(file, newSiteDirectory));
-    }
-
-    await Promise.all(filesToSave);
+    log('About to save scorm files');
+    await saveScormToContent(file);
 
     return res.status(200).send({ success: true });
   } catch (error) {
