@@ -63,7 +63,7 @@ export const saveScormToContent = async (
 
     contents.extractAllTo(newSiteDirectory);
 
-    log('Files extracted successfully');
+    log(`Files extracted successfully to ${newSiteDirectory}`);
 
     return newSiteId;
   } catch (error) {
