@@ -50,7 +50,9 @@ const contentDirectory = './content';
 //   await Promise.all(filesToSave);
 // };
 
-export const saveScormToContent = async (file: fileUpload.UploadedFile) => {
+export const saveScormToContent = async (
+  file: fileUpload.UploadedFile
+): Promise<string> => {
   try {
     const newSiteId = uuid4();
     const newSiteDirectory = path.join(contentDirectory, newSiteId);
@@ -62,6 +64,8 @@ export const saveScormToContent = async (file: fileUpload.UploadedFile) => {
     contents.extractAllTo(newSiteDirectory);
 
     log('Files extracted successfully');
+
+    return newSiteId;
   } catch (error) {
     log(error as string);
     throw error;

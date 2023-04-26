@@ -96,9 +96,11 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
       });
     }
 
-    await saveScormToContent(file);
+    const newSiteId = await saveScormToContent(file);
 
-    return res.status(200).send({ success: true });
+    return res
+      .status(200)
+      .send({ success: true, message: `New site created at ${newSiteId}` });
   } catch (error) {
     return res.status(500).send(error);
   }
