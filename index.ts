@@ -7,7 +7,7 @@ import { v4 as uuid4 } from 'uuid';
 import path from 'path';
 import { mkdir } from 'fs/promises';
 import { createWriteStream } from 'fs';
-import { hasManifest } from './src/validation/hasManifestFile';
+import { hasManifestFile } from './src/validation/hasManifestFile';
 
 dotenv.config();
 
@@ -58,7 +58,7 @@ server.post('/scorm/validate', async (req: Request, res: Response) => {
       });
     }
 
-    if (!(await hasManifest(file))) {
+    if (!hasManifestFile(file)) {
       return res.status(400).send({
         message: 'Supplied file is not a valid SCORM file',
         isValid: false,

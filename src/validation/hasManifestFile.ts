@@ -1,13 +1,10 @@
 import fileUpload from 'express-fileupload';
-import JSZip from 'jszip';
+import AdmZip from 'adm-zip';
 
-export const hasManifest = async (file: fileUpload.UploadedFile) => {
-  const contents = await JSZip.loadAsync(file.data);
+export const hasManifestFile = (file: fileUpload.UploadedFile): Boolean => {
+  const contents = new AdmZip(file.data);
+  const manifestFile = contents.getEntry('imsmanifest.xml');
 
-  // check for imsmanifest file
-  if (!Object.keys(contents.files).find((f) => f.endsWith('imsmanifest.xml'))) {
-    return false;
-  }
-
-  return true;
+  if (!manifestFile) return false;
+  else return true;
 };
