@@ -8,6 +8,7 @@ import path from 'path';
 import { mkdir } from 'fs/promises';
 import { createWriteStream } from 'fs';
 import { hasManifestFile } from './src/validation/hasManifestFile';
+import { isZipFile } from './src/validation/isZipFile';
 
 dotenv.config();
 
@@ -47,11 +48,7 @@ server.post('/scorm/validate', async (req: Request, res: Response) => {
 
     const file = req.files?.scorm as UploadedFile;
 
-    if (
-      !['application/zip', 'application/x-zip-compressed'].includes(
-        file.mimetype
-      )
-    ) {
+    if (!isZipFile(file)) {
       return res.status(400).send({
         message: `File must be of type 'application/zip', ${file.mimetype} is not valid`,
         isValid: false,
@@ -93,11 +90,7 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
 
     const file = req.files?.scorm as UploadedFile;
 
-    if (
-      !['application/zip', 'application/x-zip-compressed'].includes(
-        file.mimetype
-      )
-    ) {
+    if (isZipFile(file)) {
       return res.status(400).send({
         message: `File must be of type 'application/zip', ${file.mimetype} is not valid`,
         isValid: false,
