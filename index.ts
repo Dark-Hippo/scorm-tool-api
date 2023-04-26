@@ -16,9 +16,9 @@ const port = process.env.PORT || 3001;
 server.use(cors());
 server.use(fileUpload());
 
-const log = (text:string) => {
+const log = (text: string) => {
   console.log(text);
-}
+};
 
 server.get('/health', (req: Request, res: Response) => {
   return res.send({ date: new Date() });
@@ -108,7 +108,7 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
       });
     }
 
-    const contents = await JSZip.loadAsync(file.data, {createFolders: true});
+    const contents = await JSZip.loadAsync(file.data, { createFolders: true });
 
     // combine this with above for a single validate function
     if (
@@ -128,9 +128,9 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
     const filesToSave = [];
     const writeFile = (file: JSZipObject, directory: string) => {
       const newFileWithPath = path.join(directory, file.name);
-      
+
       return new Promise(async (resolve, reject) => {
-        await mkdir(path.dirname(newFileWithPath), {recursive: true})
+        await mkdir(path.dirname(newFileWithPath), { recursive: true });
         const out = createWriteStream(newFileWithPath);
         file.nodeStream().pipe(out);
         out.on('finish', () => {
@@ -138,23 +138,23 @@ server.post('/scorm/upload', async (req: Request, res: Response) => {
           resolve(newFileWithPath);
         });
         out.on('error', (err: Error) => {
-          log(err.message)
+          log(err.message);
           reject(`Error writing ${newFileWithPath}`);
         });
       });
-    }
+    };
     for (const key in contents.files) {
-        const file = contents.files[key];
-        const filename = file.name;
-        
-        if(!path.extname(filename)) {
-          continue;
-        }
-        filesToSave.push(writeFile(file, newSiteDirectory));
+      const file = contents.files[key];
+      const filename = file.name;
+
+      if (!path.extname(filename)) {
+        continue;
+      }
+      filesToSave.push(writeFile(file, newSiteDirectory));
     }
 
     await Promise.all(filesToSave);
-    
+
     return res.status(200).send({ success: true });
   } catch (error) {
     return res.status(500).send(error);
