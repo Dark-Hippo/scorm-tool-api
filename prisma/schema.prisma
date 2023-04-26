@@ -9,3 +9,37 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  name String?
+  sites Site[]
+  courses Course[]
+  createdDate DateTime
+  updatedDate DateTime
+}
+
+model Course {
+  id Int @id @default(autoincrement())
+  name String
+  language String
+  createdBy User @relation(fields: [createdByUserId], references: [id])
+  createdByUserId Int
+  sites Site[]
+  createdDate DateTime
+  updatedDate DateTime
+}
+
+model Site {
+  id Int @id @default(autoincrement())
+  guid String
+  title String
+  course Course @relation(fields: [courseId], references: [id])
+  courseId Int
+  lastAccessed DateTime
+  createdBy User @relation(fields: [createdByUserId], references: [id])
+  createdByUserId Int
+  createdDate DateTime
+  updatedDate DateTime
+}

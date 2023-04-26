@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
 import scorm from './src/controllers/scorm';
+import user from './src/controllers/user';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ server.get('/health', (req: Request, res: Response) => {
 });
 
 server.use('/scorm', scorm);
+server.use('/user', user);
 
 server.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
