@@ -16,8 +16,8 @@ model User {
   name String?
   sites Site[]
   courses Course[]
-  createdDate DateTime
-  updatedDate DateTime
+  createdDate DateTime @default(now())
+  updatedDate DateTime @default(now())
 }
 
 model Course {
@@ -27,8 +27,8 @@ model Course {
   createdBy User @relation(fields: [createdByUserId], references: [id])
   createdByUserId Int
   sites Site[]
-  createdDate DateTime
-  updatedDate DateTime
+  createdDate DateTime @default(now())
+  updatedDate DateTime @default(now())
 }
 
 model Site {
@@ -40,6 +40,6 @@ model Site {
   lastAccessed DateTime
   createdBy User @relation(fields: [createdByUserId], references: [id])
   createdByUserId Int
-  createdDate DateTime
-  updatedDate DateTime
+  createdDate DateTime @default(now())
+  updatedDate DateTime @default(now())
 }
