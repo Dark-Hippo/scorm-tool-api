@@ -1,53 +1,47 @@
 import express, { Request, Response, Router } from 'express';
-import { PrismaClient, User } from '@prisma/client';
-import { log } from 'console';
+import { User } from '@prisma/client';
+import { logError } from '../utils/logger';
+import { createUser, getAllUsers, getUser, updateUser } from '../adapters/user';
 
 const router: Router = express.Router();
-const prisma: PrismaClient = new PrismaClient();
 
 router.get('/:id?', async (req: Request, res: Response) => {
   try {
-    const main = async () => {
-      const allUsers = await prisma.user.findMany();
+    if (req.params?.id && !Number.isInteger(Number(req.params.id))) {
+      return res
+        .status(400)
+        .send({ message: 'Id must be a number', isValid: false });
+    }
 
-      return allUsers;
-    };
+    if (req.params.id) {
+      const id: number = Number(req.params.id);
+      const user = await getUser(id);
+      if (!user) {
+        return res
+          .status(404)
+          .send({ message: 'User not found', isValid: false });
+      }
 
-    const users = await main();
-
-    return res.status(200).send(users);
+      return res.status(200).send(user);
+    } else {
+      const users = await getAllUsers();
+      return res.status(200).send(users);
+    }
   } catch (error) {
-    log(error);
+    logError(error);
     return res.status(500).send(error);
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
 router.post('/', async (req: Request, res: Response) => {
   try {
     const user: User = req.body as User;
-    const date = new Date();
-    if (!user.createdDate) user.createdDate = date;
-    if (!user.updatedDate) user.updatedDate = date;
+    const newUser = await createUser(user);
 
-    const main = async (user: User) => {
-      await prisma.user.create({
-        data: user,
-      });
-
-      const allUsers = await prisma.user.findMany();
-      return allUsers;
-    };
-
-    const users = await main(req.body);
-
-    return res.status(200).send(users);
+    return res.status(201).send(newUser);
   } catch (error) {
-    log(error);
+    logError(error);
     return res.status(500).send(error);
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
@@ -68,27 +62,21 @@ router.patch('/:id?', async (req: Request, res: Response) => {
 
     const id: number = Number(req.params.id);
     const userData: User = req.body;
-    if (!userData.updatedDate) {
-      userData.updatedDate = new Date();
+
+    const user = await getUser(id);
+
+    if (!user) {
+      return res
+        .status(404)
+        .send({ message: `UserId ${id} not found`, isValid: false });
     }
 
-    const main = async (id: number, data: User) => {
-      const user: User = await prisma.user.update({
-        where: { id: id },
-        data: data,
-      });
+    const updatedUser = await updateUser(userData, user);
 
-      return user;
-    };
-
-    const user = await main(id, userData);
-
-    return res.status(200).send(user);
+    return res.status(200).send(updatedUser);
   } catch (error) {
-    log(error);
+    logError(error);
     return res.status(500).send(error);
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
