@@ -4,6 +4,7 @@ import path from 'path';
 import { v4 as uuid4 } from 'uuid';
 import { log } from './logger';
 import AdmZip from 'adm-zip';
+import { XMLParser } from 'fast-xml-parser';
 
 const contentDirectory = './content';
 
@@ -50,24 +51,56 @@ const contentDirectory = './content';
 //   await Promise.all(filesToSave);
 // };
 
+interface details {
+  siteId?: string;
+  title: string;
+  language: string;
+}
+
 export const saveScormToContent = async (
   file: fileUpload.UploadedFile
 ): Promise<string> => {
   try {
-    const newSiteId = uuid4();
-    const newSiteDirectory = path.join(contentDirectory, newSiteId);
+    const siteId = uuid4();
+    const siteDirectory = path.join(contentDirectory, siteId);
 
-    await mkdir(newSiteDirectory);
+    await mkdir(siteDirectory);
 
     const contents = new AdmZip(file.data);
 
-    contents.extractAllTo(newSiteDirectory);
+    contents.extractAllTo(siteDirectory);
 
-    log(`Files extracted successfully to ${newSiteDirectory}`);
+    log(`Files extracted successfully to ${siteDirectory}`);
 
-    return newSiteId;
+    return siteId;
   } catch (error) {
     log(error as string);
     throw error;
   }
+};
+
+export const getScormDetails = (file: fileUpload.UploadedFile): details => {
+  const contents = new AdmZip(file.data);
+
+  const manifestFile = contents.getEntry('imsmanifest.xml');
+  const manifest = manifestFile?.getData();
+  if (!manifest) {
+    throw new Error('Manifest file is corrupt or invalid');
+  }
+
+  const metadataFile = contents.getEntry('metadata.xml');
+  const metadata = metadataFile?.getData();
+  if (!metadata) {
+    throw new Error('Metadata file is corrupt or invalid');
+  }
+
+  const parser = new XMLParser();
+  const manifestJson = parser.parse(manifest);
+  const title =
+    manifestJson?.manifest?.organizations?.organization?.title || file.name;
+
+  const metadataJson = parser.parse(metadata);
+  const language = metadataJson?.lom?.general?.language || 'en';
+
+  return { title, language };
 };
