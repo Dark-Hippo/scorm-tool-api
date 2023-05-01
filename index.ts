@@ -4,6 +4,8 @@ import cors from 'cors';
 import fileUpload from 'express-fileupload';
 import scorm from './src/controllers/scorm';
 import user from './src/controllers/user';
+import site from './src/controllers/site';
+import course from './src/controllers/course';
 import bodyParser from 'body-parser';
 
 dotenv.config();
@@ -22,6 +24,8 @@ server.get('/health', (req: Request, res: Response) => {
 
 server.use('/scorm', scorm);
 server.use('/user', user);
+server.use('/site', site);
+server.use('/course', course);
 
 server.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
