@@ -52,7 +52,7 @@ export const createUser = async (user: User): Promise<User> => {
 
 export const updateUser = async (
   updatedDetails: User,
-  user: User
+  userId: number
 ): Promise<User> => {
   try {
     if (!updatedDetails.updatedDate) {
@@ -60,7 +60,7 @@ export const updateUser = async (
     }
 
     const updatedUser: User = await prisma.user.update({
-      where: { id: user.id },
+      where: { id: userId },
       data: updatedDetails,
     });
 

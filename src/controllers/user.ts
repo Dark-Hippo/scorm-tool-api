@@ -71,7 +71,7 @@ router.patch('/:id?', async (req: Request, res: Response) => {
         .send({ message: `UserId ${id} not found`, isValid: false });
     }
 
-    const updatedUser = await updateUser(userData, user);
+    const updatedUser = await updateUser(userData, user.id);
 
     return res.status(200).send(updatedUser);
   } catch (error) {
