@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from 'express';
-import { Course } from '@prisma/client';
+import { Course, Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
 import {
   createCourse,
@@ -41,7 +41,7 @@ router.get('/:id?', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const course: Course = req.body as Course;
+    const course: Prisma.CourseCreateInput = req.body;
     const newCourse = await createCourse(course);
 
     return res.status(201).send(newCourse);
@@ -67,7 +67,7 @@ router.patch('/:id?', async (req: Request, res: Response) => {
     }
 
     const id: number = Number(req.params.id);
-    const courseData: Course = req.body;
+    const courseData: Prisma.CourseUpdateInput = req.body;
 
     const course = await getCourse(id);
 
