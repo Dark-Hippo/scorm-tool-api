@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from 'express';
-import { Site } from '@prisma/client';
+import { Site, Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
 import {
   createSite,
@@ -41,7 +41,7 @@ router.get('/:id?', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const site: Site = req.body as Site;
+    const site: Prisma.SiteCreateInput = req.body;
     const newSite = await createSite(site);
 
     return res.status(201).send(newSite);
@@ -67,7 +67,7 @@ router.patch('/:id?', async (req: Request, res: Response) => {
     }
 
     const id: number = Number(req.params.id);
-    const siteData: Site = req.body;
+    const siteData: Prisma.SiteUpdateInput = req.body;
 
     const site = await getSite(id);
 

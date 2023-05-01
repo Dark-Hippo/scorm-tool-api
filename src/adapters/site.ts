@@ -1,4 +1,4 @@
-import { Site, PrismaClient } from '@prisma/client';
+import { Site, PrismaClient, Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
 
 const prisma: PrismaClient = new PrismaClient();
@@ -31,7 +31,9 @@ export const getAllSites = async (): Promise<Site[] | null> => {
   }
 };
 
-export const createSite = async (site: Site): Promise<Site> => {
+export const createSite = async (
+  site: Prisma.SiteCreateInput
+): Promise<Site> => {
   try {
     const createdSite = await prisma.site.create({
       data: site,
@@ -47,7 +49,7 @@ export const createSite = async (site: Site): Promise<Site> => {
 };
 
 export const updateSite = async (
-  updatedDetails: Site,
+  updatedDetails: Prisma.SiteUpdateInput,
   siteId: number
 ): Promise<Site> => {
   try {
