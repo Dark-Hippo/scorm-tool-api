@@ -33,10 +33,6 @@ export const getAllUsers = async (): Promise<User[]> => {
 
 export const createUser = async (user: User): Promise<User> => {
   try {
-    const date = new Date();
-    if (!user.createdDate) user.createdDate = date;
-    if (!user.updatedDate) user.updatedDate = date;
-
     const createdUser = await prisma.user.create({
       data: user,
     });

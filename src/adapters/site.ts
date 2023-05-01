@@ -33,10 +33,6 @@ export const getAllSites = async (): Promise<Site[] | null> => {
 
 export const createSite = async (site: Site): Promise<Site> => {
   try {
-    const date = new Date();
-    if (!site.createdDate) site.createdDate = date;
-    if (!site.updatedDate) site.updatedDate = date;
-
     const createdSite = await prisma.site.create({
       data: site,
     });

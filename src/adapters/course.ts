@@ -33,10 +33,6 @@ export const getAllCourses = async (): Promise<Course[] | null> => {
 
 export const createCourse = async (course: Course): Promise<Course> => {
   try {
-    const date = new Date();
-    if (!course.createdDate) course.createdDate = date;
-    if (!course.updatedDate) course.updatedDate = date;
-
     const createdCourse = await prisma.course.create({
       data: course,
     });
