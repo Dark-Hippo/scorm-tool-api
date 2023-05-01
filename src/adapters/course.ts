@@ -68,3 +68,18 @@ export const updateCourse = async (
     await prisma.$disconnect();
   }
 };
+
+export const deleteCourse = async (courseId: number): Promise<Course> => {
+  try {
+    const deletedCourse: Course = await prisma.course.delete({
+      where: { id: courseId },
+    });
+
+    return deletedCourse;
+  } catch (error) {
+    logError(error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+};
