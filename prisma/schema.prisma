@@ -26,18 +26,18 @@ model Course {
   language String
   createdBy User @relation(fields: [createdByUserId], references: [id])
   createdByUserId Int
-  sites Site[]
+  site Site?
   createdDate DateTime @default(now())
   updatedDate DateTime @default(now())
 }
 
 model Site {
   id Int @id @default(autoincrement())
-  guid String
+  guid String @unique
   title String
   course Course @relation(fields: [courseId], references: [id])
-  courseId Int
-  lastAccessed DateTime
+  courseId Int @unique
+  lastAccessed DateTime?
   createdBy User @relation(fields: [createdByUserId], references: [id])
   createdByUserId Int
   createdDate DateTime @default(now())
