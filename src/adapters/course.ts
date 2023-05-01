@@ -1,4 +1,4 @@
-import { Course, PrismaClient } from '@prisma/client';
+import { Course, PrismaClient, Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
 
 const prisma: PrismaClient = new PrismaClient();
@@ -31,7 +31,9 @@ export const getAllCourses = async (): Promise<Course[] | null> => {
   }
 };
 
-export const createCourse = async (course: Course): Promise<Course> => {
+export const createCourse = async (
+  course: Prisma.CourseCreateInput
+): Promise<Course> => {
   try {
     const createdCourse = await prisma.course.create({
       data: course,
@@ -47,7 +49,7 @@ export const createCourse = async (course: Course): Promise<Course> => {
 };
 
 export const updateCourse = async (
-  updatedDetails: Course,
+  updatedDetails: Prisma.CourseUpdateInput,
   courseId: number
 ): Promise<Course> => {
   try {

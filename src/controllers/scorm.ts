@@ -2,7 +2,10 @@ import express, { Request, Response, Router } from 'express';
 import { UploadedFile } from 'express-fileupload';
 import { hasManifestFile } from '../validation/hasManifestFile';
 import { isZipFile } from '../validation/isZipFile';
-import { saveScormToContent } from '../utils/saveScorm';
+import { getScormDetails, saveScormToContent } from '../utils/scorm';
+import { Prisma } from '@prisma/client';
+import { createCourse } from '../adapters/course';
+import { createSite } from '../adapters/site';
 
 const router: Router = express.Router();
 
@@ -42,12 +45,23 @@ router.post('/validate', async (req: Request, res: Response) => {
       });
     }
 
-    return res.status(200).send({ isValid: true });
+    const { title, language } = getScormDetails(file);
+
+    return res
+      .status(200)
+      .send({ isValid: true, title: title, language: language });
   } catch (error) {
     return res.status(500).send(error);
   }
 });
 
+/**
+ * formData:
+ *  scorm: <scorm file>
+ *  title: <course title>
+ *  language: <course short language code>
+ *  userId: <Id of creating user>
+ */
 router.post('/upload', async (req: Request, res: Response) => {
   try {
     if (!req?.files) {
@@ -84,11 +98,59 @@ router.post('/upload', async (req: Request, res: Response) => {
       });
     }
 
-    const newSiteId = await saveScormToContent(file);
+    const { title, language, userId } = req.body;
 
-    return res
-      .status(200)
-      .send({ success: true, message: `New site created at ${newSiteId}` });
+    if (!userId) {
+      return res.status(400).send({
+        message: 'No userId supplied with request',
+        isValid: false,
+      });
+    }
+
+    if (!Number.isInteger(Number(userId))) {
+      return res.status(400).send({
+        message: `UserId must be a number, not '${userId}'`,
+        isValid: false,
+      });
+    }
+
+    if (!title) {
+      return res.status(400).send({
+        message: 'No title supplied with request',
+        isValid: false,
+      });
+    }
+
+    if (!language) {
+      return res.status(400).send({
+        message: 'No language supplied with request',
+        isValid: false,
+      });
+    }
+
+    const siteId = await saveScormToContent(file);
+
+    const course: Prisma.CourseCreateInput = {
+      name: title,
+      language: language,
+      createdBy: { connect: { id: Number(userId) } },
+    };
+
+    const createdCourse = await createCourse(course);
+
+    const site: Prisma.SiteCreateInput = {
+      guid: siteId,
+      title: file.name,
+      createdBy: { connect: { id: Number(userId) } },
+      course: { connect: { id: createdCourse.id } },
+    };
+
+    const createdSite = await createSite(site);
+
+    return res.status(200).send({
+      success: true,
+      message: `New site '${title}' created from '${createdSite.title}' at '${createdSite.guid}'`,
+    });
   } catch (error) {
     return res.status(500).send(error);
   }
