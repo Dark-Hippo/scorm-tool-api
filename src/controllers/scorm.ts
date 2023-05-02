@@ -128,7 +128,7 @@ router.post('/upload', async (req: Request, res: Response) => {
       });
     }
 
-    const siteId = await saveScormToContent(file);
+    const siteId = await saveScormToContent(file, true);
 
     const course: Prisma.CourseCreateInput = {
       name: title,
