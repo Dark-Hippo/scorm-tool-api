@@ -8,17 +8,13 @@ import {
   getSite,
   updateSite,
 } from '../adapters/site';
+import { existsSync } from 'fs';
+import path from 'path';
 
 const router: Router = express.Router();
 
-router.get('/:id?', async (req: Request, res: Response) => {
+router.get('/:id(\\d+)?', async (req: Request, res: Response) => {
   try {
-    if (req.params?.id && !Number.isInteger(Number(req.params.id))) {
-      return res
-        .status(400)
-        .send({ message: 'Id must be a number', isValid: false });
-    }
-
     if (req.params.id) {
       const id: number = Number(req.params.id);
       const site = await getSite(id);
@@ -120,4 +116,23 @@ router.delete('/:id?', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/:guid/original', async (req: Request, res: Response) => {
+  try {
+    const siteDirectory = path.join('./content', req.params.guid);
+    const filename = 'original.zip';
+    if (existsSync(path.join(siteDirectory, filename))) {
+      res.sendFile(filename, { root: siteDirectory });
+    }
+
+    res
+      .status(404)
+      .send({
+        message: `No original SCORM file saved for ${req.params.guid}`,
+        isValid: false,
+      });
+  } catch (error) {
+    logError(error);
+    return res.status(500).send(error);
+  }
+});
 export default router;
