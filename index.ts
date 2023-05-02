@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
@@ -26,6 +26,10 @@ server.use('/scorm', scorm);
 server.use('/user', user);
 server.use('/site', site);
 server.use('/course', course);
+
+server.use((req: Request, res: Response, next: NextFunction) =>
+  res.status(404).send('Resource not found')
+);
 
 server.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
