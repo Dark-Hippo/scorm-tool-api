@@ -1,5 +1,5 @@
 import fileUpload from 'express-fileupload';
-import { mkdir } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
 import { v4 as uuid4 } from 'uuid';
 import { log } from './logger';
@@ -57,20 +57,34 @@ interface details {
   language: string;
 }
 
+/**
+ * Saves the SCORM file content to a generated directory
+ * @param file Uploaded SCORM file to extract and save
+ * @param saveOriginal Save the original course SCORM file
+ * @returns
+ */
 export const saveScormToContent = async (
-  file: fileUpload.UploadedFile
+  file: fileUpload.UploadedFile,
+  saveOriginal: boolean = true
 ): Promise<string> => {
   try {
     const siteId = uuid4();
     const siteDirectory = path.join(contentDirectory, siteId);
+    const courseDirectory = path.join(siteDirectory, 'course');
 
-    await mkdir(siteDirectory);
+    await mkdir(courseDirectory, { recursive: true });
 
     const contents = new AdmZip(file.data);
 
-    contents.extractAllTo(siteDirectory);
+    contents.extractAllTo(courseDirectory);
 
-    log(`Files extracted successfully to ${siteDirectory}`);
+    log(`Files extracted successfully to '${courseDirectory}'`);
+
+    if (saveOriginal) {
+      const filename = path.join(siteDirectory, 'original.zip');
+      await writeFile(filename, file.data);
+      log(`Original course saved to '${filename}'`);
+    }
 
     return siteId;
   } catch (error) {
