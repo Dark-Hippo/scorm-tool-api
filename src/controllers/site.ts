@@ -153,13 +153,10 @@ router.get(
   (req: Request, res: Response): Response | void => {
     try {
       const site = req.params.guid;
-      const filepath = req.params[0] ? req.params[0] : 'index.html';
-      const siteDirectory = path.join(
-        contentDirectory,
-        site,
-        'course',
-        'scormcontent'
-      );
+      const filepath = req.params[0]
+        ? req.params[0]
+        : 'scormcontent/index.html';
+      const siteDirectory = path.join(contentDirectory, site, 'course');
 
       if (existsSync(siteDirectory)) {
         return res.sendFile(filepath, { root: siteDirectory });
