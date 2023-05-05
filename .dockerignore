@@ -1,0 +1,9 @@
+node_modules
+dist
+content
+.env
+Dev.Dockerfile
+Dockerfile
+.prettierrc
+docker-compose.yml
+readme.md
