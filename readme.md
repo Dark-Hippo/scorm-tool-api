@@ -18,6 +18,8 @@ Database connection string should be stored in an environment variable (can use 
 
 ## Usage
 
+`DATABASE_URL` environment variable is required to work (see [Initial setup](#initial-setup) above)
+
 Run with the included `Dockerfile`.
 
 Build with:
