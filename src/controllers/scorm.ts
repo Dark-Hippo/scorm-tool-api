@@ -58,8 +58,6 @@ router.post('/validate', async (req: Request, res: Response) => {
 /**
  * formData:
  *  scorm: <scorm file>
- *  title: <course title>
- *  language: <course short language code>
  *  userId: <Id of creating user>
  */
 router.post('/upload', async (req: Request, res: Response) => {
@@ -98,7 +96,7 @@ router.post('/upload', async (req: Request, res: Response) => {
       });
     }
 
-    const { title, language, userId } = req.body;
+    const userId = req.body.userId;
 
     if (!userId) {
       return res.status(400).send({
@@ -114,20 +112,7 @@ router.post('/upload', async (req: Request, res: Response) => {
       });
     }
 
-    if (!title) {
-      return res.status(400).send({
-        message: 'No title supplied with request',
-        isValid: false,
-      });
-    }
-
-    if (!language) {
-      return res.status(400).send({
-        message: 'No language supplied with request',
-        isValid: false,
-      });
-    }
-
+    const { title, language } = getScormDetails(file);
     const siteId = await saveScormToContent(file, true);
 
     const course: Prisma.CourseCreateInput = {
@@ -147,9 +132,10 @@ router.post('/upload', async (req: Request, res: Response) => {
 
     const createdSite = await createSite(site);
 
-    return res.status(200).send({
-      success: true,
-      message: `New site '${title}' created from '${createdSite.title}' at '${createdSite.guid}'`,
+    return res.status(201).location(`site/${createdSite.guid}/course`).send({
+      isValid: true,
+      course: createdCourse,
+      site: createdSite,
     });
   } catch (error) {
     return res.status(500).send(error);
