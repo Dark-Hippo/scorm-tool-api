@@ -1,5 +1,6 @@
 import { Course, PrismaClient, Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
+import { CourseWithSite } from '../types/courseWithSite';
 
 const prisma: PrismaClient = new PrismaClient();
 
@@ -18,11 +19,50 @@ export const getCourse = async (id: number): Promise<Course | null> => {
   }
 };
 
+export const getCourseWithSite = async (
+  id: number
+): Promise<CourseWithSite | null> => {
+  try {
+    const courseWithSite = await prisma.course.findUnique({
+      where: { id: id },
+      include: {
+        site: true,
+      },
+    });
+
+    return courseWithSite;
+  } catch (error) {
+    logError(error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
 export const getAllCourses = async (): Promise<Course[] | null> => {
   try {
     const allCourses = await prisma.course.findMany();
 
     return allCourses;
+  } catch (error) {
+    logError(error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
+export const getAllCoursesWithSites = async (): Promise<
+  CourseWithSite[] | null
+> => {
+  try {
+    const allCoursesWithSites = await prisma.course.findMany({
+      include: {
+        site: true,
+      },
+    });
+
+    return allCoursesWithSites;
   } catch (error) {
     logError(error);
     throw error;
