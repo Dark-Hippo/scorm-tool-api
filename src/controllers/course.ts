@@ -1,24 +1,20 @@
 import express, { Request, Response, Router } from 'express';
-import { Course, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
 import {
   createCourse,
   deleteCourse,
   getAllCourses,
+  getAllCoursesWithSites,
   getCourse,
+  getCourseWithSite,
   updateCourse,
 } from '../adapters/course';
 
 const router: Router = express.Router();
 
-router.get('/:id?', async (req: Request, res: Response) => {
+router.get('/:id(\\d+)?', async (req: Request, res: Response) => {
   try {
-    if (req.params?.id && !Number.isInteger(Number(req.params.id))) {
-      return res
-        .status(400)
-        .send({ message: 'Id must be a number', isValid: false });
-    }
-
     if (req.params.id) {
       const id: number = Number(req.params.id);
       const course = await getCourse(id);
@@ -33,6 +29,33 @@ router.get('/:id?', async (req: Request, res: Response) => {
       const courses = await getAllCourses();
       return res.status(200).send(courses);
     }
+  } catch (error) {
+    logError(error);
+    return res.status(500).send(error);
+  }
+});
+
+router.get('/site', async (req: Request, res: Response) => {
+  try {
+    const coursesWithSites = await getAllCoursesWithSites();
+    return res.status(200).send(coursesWithSites);
+  } catch (error) {
+    logError(error);
+    return res.status(500).send(error);
+  }
+});
+
+router.get('/:id(\\d+)/site', async (req: Request, res: Response) => {
+  try {
+    const id: number = Number(req.params.id);
+    const courseWithSite = await getCourseWithSite(id);
+    if (!courseWithSite) {
+      return res
+        .status(404)
+        .send({ message: 'Course not found', isValid: false });
+    }
+
+    return res.status(200).send(courseWithSite);
   } catch (error) {
     logError(error);
     return res.status(500).send(error);
