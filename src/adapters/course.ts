@@ -73,10 +73,13 @@ export const getAllCoursesWithSites = async (): Promise<
 
 export const createCourse = async (
   course: Prisma.CourseCreateInput
-): Promise<Course> => {
+): Promise<CourseWithSite> => {
   try {
     const createdCourse = await prisma.course.create({
       data: course,
+      include: {
+        site: true,
+      },
     });
 
     return createdCourse;

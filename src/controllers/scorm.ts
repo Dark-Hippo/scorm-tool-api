@@ -6,6 +6,7 @@ import { getScormDetails, saveScormToContent } from '../utils/scorm';
 import { Prisma } from '@prisma/client';
 import { createCourse } from '../adapters/course';
 import { createSite } from '../adapters/site';
+import { getCourse } from '../adapters/course';
 
 const router: Router = express.Router();
 
@@ -119,23 +120,34 @@ router.post('/upload', async (req: Request, res: Response) => {
       name: title,
       language: language,
       createdBy: { connect: { id: Number(userId) } },
+      site: {
+        create: {
+          guid: siteId,
+          title: file.name,
+          createdBy: { connect: { id: Number(userId) } },
+        },
+      },
     };
 
     const createdCourse = await createCourse(course);
+    let guid = createdCourse.site?.guid;
 
-    const site: Prisma.SiteCreateInput = {
-      guid: siteId,
-      title: file.name,
-      createdBy: { connect: { id: Number(userId) } },
-      course: { connect: { id: createdCourse.id } },
-    };
+    if (!createdCourse.site) {
+      const site: Prisma.SiteCreateInput = {
+        guid: siteId,
+        title: file.name,
+        createdBy: { connect: { id: Number(userId) } },
+        course: { connect: { id: createdCourse.id } },
+      };
 
-    const createdSite = await createSite(site);
+      const createdSite = await createSite(site);
+      createdCourse.site = createdSite;
+      guid = createdSite.guid;
+    }
 
-    return res.status(201).location(`site/${createdSite.guid}/course`).send({
+    return res.status(201).location(`site/${guid}/course`).send({
       isValid: true,
       course: createdCourse,
-      site: createdSite,
     });
   } catch (error) {
     return res.status(500).send(error);
