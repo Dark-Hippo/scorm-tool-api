@@ -35,7 +35,7 @@ model Site {
   id Int @id @default(autoincrement())
   guid String @unique
   title String
-  course Course @relation(fields: [courseId], references: [id])
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId Int @unique
   lastAccessed DateTime?
   createdBy User @relation(fields: [createdByUserId], references: [id])
