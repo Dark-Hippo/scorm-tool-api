@@ -90,22 +90,9 @@ router.patch(
 );
 
 router.delete(
-  '/:id?',
+  '/:id(\\d+)',
   async (req: Request, res: Response): Promise<Response> => {
     try {
-      if (!req.params?.id) {
-        return res
-          .status(400)
-          .send({ message: 'An id is required to delete', isValid: false });
-      }
-
-      if (!Number.isInteger(Number(req.params.id))) {
-        return res.status(400).send({
-          message: `Site Id must be a number, not '${req.params.id}'`,
-          isValid: false,
-        });
-      }
-
       const id: number = Number(req.params.id);
 
       const site = await getSite(id);
@@ -153,10 +140,12 @@ router.get(
   (req: Request, res: Response): Response | void => {
     try {
       const site = req.params.guid;
-      const filepath = req.params[0]
-        ? req.params[0]
-        : 'scormcontent/index.html';
-      const siteDirectory = path.join(contentDirectory, site, 'course');
+      const filepath = req.params[0] ? req.params[0] : 'index.html';
+      const siteDirectory = path.join(
+        contentDirectory,
+        site,
+        'course/scormcontent'
+      );
 
       if (existsSync(siteDirectory)) {
         return res.sendFile(filepath, { root: siteDirectory });

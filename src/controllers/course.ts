@@ -109,21 +109,8 @@ router.patch('/:id?', async (req: Request, res: Response) => {
   }
 });
 
-router.delete('/:id?', async (req: Request, res: Response) => {
+router.delete('/:id(\\d+)', async (req: Request, res: Response) => {
   try {
-    if (!req.params?.id) {
-      return res
-        .status(400)
-        .send({ message: 'An id is required to delete', isValid: false });
-    }
-
-    if (!Number.isInteger(Number(req.params.id))) {
-      return res.status(400).send({
-        message: `Course Id must be a number, not '${req.params.id}'`,
-        isValid: false,
-      });
-    }
-
     const id: number = Number(req.params.id);
 
     const course = await getCourse(id);
