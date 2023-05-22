@@ -119,9 +119,10 @@ router.get(
     try {
       const siteDirectory = path.join(contentDirectory, req.params.guid);
       const filename = 'original.zip';
-      console.log(path.join(siteDirectory, filename));
-      if (existsSync(path.join(siteDirectory, filename))) {
-        return res.sendFile(filename, { root: siteDirectory });
+      const filepath = path.join(siteDirectory, filename);
+
+      if (existsSync(filepath)) {
+        return res.download(filepath, filename);
       }
 
       return res.status(404).send({
