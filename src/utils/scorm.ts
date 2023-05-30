@@ -6,8 +6,6 @@ import { log } from './logger';
 import AdmZip from 'adm-zip';
 import { X2jOptionsOptional, XMLParser } from 'fast-xml-parser';
 
-const contentDirectory = './content';
-
 /* Commented out as uses an arguably more reliable library, but my
  *  stupid brain couldn't figure out why it wasn't writing messages
  *  out to the console... turns out it was a nodemon issue.
@@ -70,7 +68,7 @@ export const saveScormToContent = async (
 ): Promise<string> => {
   try {
     const siteId = uuid4();
-    const siteDirectory = path.join(contentDirectory, siteId);
+    const siteDirectory = path.join(CONTENT_DIR, siteId);
     const courseDirectory = path.join(siteDirectory, 'course');
 
     await mkdir(courseDirectory, { recursive: true });
