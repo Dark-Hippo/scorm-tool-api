@@ -1,6 +1,6 @@
 import { Course, PrismaClient, Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
-import { CourseWithSite } from '../types/courseWithSite';
+import type { CourseWithSite } from '../types/courseAndSite';
 
 const prisma: PrismaClient = new PrismaClient();
 
