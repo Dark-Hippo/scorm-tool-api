@@ -10,6 +10,7 @@ import {
   getCourseWithSite,
   updateCourse,
 } from '../adapters/course';
+import { deleteSiteFiles } from '../utils/site';
 
 const router: Router = express.Router();
 
@@ -113,7 +114,7 @@ router.delete('/:id(\\d+)', async (req: Request, res: Response) => {
   try {
     const id: number = Number(req.params.id);
 
-    const course = await getCourse(id);
+    const course = await getCourseWithSite(id);
 
     if (!course) {
       return res
@@ -122,6 +123,10 @@ router.delete('/:id(\\d+)', async (req: Request, res: Response) => {
     }
 
     await deleteCourse(course.id);
+
+    if (course.site) {
+      deleteSiteFiles(course.site.guid);
+    }
 
     return res.status(204).send();
   } catch (error) {

@@ -11,6 +11,7 @@ import {
 import { existsSync } from 'fs';
 import path from 'path';
 import { SiteWithCourse } from '../types/courseAndSite';
+import { deleteSiteFiles } from '../utils/site';
 
 const router: Router = express.Router();
 const contentDirectory = './content';
@@ -105,6 +106,8 @@ router.delete(
       }
 
       await deleteSite(site.id);
+
+      deleteSiteFiles(site.guid);
 
       return res.status(204).send();
     } catch (error) {
