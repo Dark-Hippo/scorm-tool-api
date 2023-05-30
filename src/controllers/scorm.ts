@@ -113,7 +113,7 @@ router.post('/upload', async (req: Request, res: Response) => {
       });
     }
 
-    const { title, language } = getScormDetails(file);
+    const { title, language, courseEntrypoint } = getScormDetails(file);
     const siteId = await saveScormToContent(file, true);
 
     const course: Prisma.CourseCreateInput = {
@@ -127,6 +127,7 @@ router.post('/upload', async (req: Request, res: Response) => {
           createdBy: { connect: { id: Number(userId) } },
         },
       },
+      courseEntrypoint: courseEntrypoint,
     };
 
     const createdCourse = await createCourse(course);

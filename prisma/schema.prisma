@@ -27,6 +27,7 @@ model Course {
   createdBy User @relation(fields: [createdByUserId], references: [id])
   createdByUserId Int
   site Site?
+  courseEntrypoint String
   createdDate DateTime @default(now())
   updatedDate DateTime @default(now())
 }

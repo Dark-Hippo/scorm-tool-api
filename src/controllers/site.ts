@@ -10,6 +10,7 @@ import {
 } from '../adapters/site';
 import { existsSync } from 'fs';
 import path from 'path';
+import { SiteWithCourse } from '../types/courseAndSite';
 
 const router: Router = express.Router();
 const contentDirectory = './content';
@@ -114,7 +115,7 @@ router.delete(
 );
 
 router.get(
-  '/:guid/original',
+  '/:id(\\d+)/:guid/original',
   (req: Request, res: Response): Response | void => {
     try {
       const siteDirectory = path.join(contentDirectory, req.params.guid);
@@ -136,17 +137,33 @@ router.get(
   }
 );
 
+// TODO: caching so it doesn't make a call to the database to get the
+// site / course details for every file
 router.get(
-  '/:guid/course/*',
-  (req: Request, res: Response): Response | void => {
+  '/:id(\\d+)/:guid/course/*',
+  async (req: Request, res: Response): Promise<Response | void> => {
     try {
-      const site = req.params.guid;
-      const filepath = req.params[0] ? req.params[0] : 'index.html';
-      const siteDirectory = path.join(
-        contentDirectory,
-        site,
-        'course/scormcontent'
-      );
+      const { id, guid } = req.params;
+      const siteId: number = Number(id);
+
+      const site: SiteWithCourse | null = await getSite(siteId);
+
+      if (!site) {
+        return res
+          .status(404)
+          .send({ message: 'Site not found', isValid: false });
+      }
+
+      if (!site.course) {
+        return res
+          .status(404)
+          .send({ message: 'Course not found', isValid: false });
+      }
+
+      const entryPoint = site.course.courseEntrypoint;
+
+      const filepath = req.params[0] ? req.params[0] : entryPoint;
+      const siteDirectory = path.join(contentDirectory, guid, 'course');
 
       if (existsSync(siteDirectory)) {
         return res.sendFile(filepath, { root: siteDirectory });

@@ -4,7 +4,7 @@ import path from 'path';
 import { v4 as uuid4 } from 'uuid';
 import { log } from './logger';
 import AdmZip from 'adm-zip';
-import { XMLParser } from 'fast-xml-parser';
+import { X2jOptionsOptional, XMLParser } from 'fast-xml-parser';
 
 const contentDirectory = './content';
 
@@ -55,6 +55,7 @@ interface details {
   siteId?: string;
   title: string;
   language: string;
+  courseEntrypoint: string;
 }
 
 /**
@@ -108,13 +109,21 @@ export const getScormDetails = (file: fileUpload.UploadedFile): details => {
     throw new Error('Metadata file is corrupt or invalid');
   }
 
-  const parser = new XMLParser();
+  const attributeNamePrefix = '@_';
+  const parserOptions: X2jOptionsOptional = {
+    ignoreAttributes: false,
+    attributeNamePrefix: attributeNamePrefix,
+  };
+
+  const parser = new XMLParser(parserOptions);
   const manifestJson = parser.parse(manifest);
   const title =
     manifestJson?.manifest?.organizations?.organization?.title || file.name;
+  const resourceElement = manifestJson?.manifest?.resources?.resource;
+  const courseEntrypoint = resourceElement[`${attributeNamePrefix}href`];
 
   const metadataJson = parser.parse(metadata);
   const language = metadataJson?.lom?.general?.language || 'en';
 
-  return { title, language };
+  return { title, language, courseEntrypoint };
 };

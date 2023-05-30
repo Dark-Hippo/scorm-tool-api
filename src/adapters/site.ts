@@ -1,12 +1,14 @@
 import { Site, PrismaClient, Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
+import type { SiteWithCourse } from '../types/courseAndSite';
 
 const prisma: PrismaClient = new PrismaClient();
 
-export const getSite = async (id: number): Promise<Site | null> => {
+export const getSite = async (id: number): Promise<SiteWithCourse | null> => {
   try {
     const site = await prisma.site.findUnique({
       where: { id: id },
+      include: { course: true },
     });
 
     return site;
