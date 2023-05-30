@@ -118,6 +118,7 @@ export const deleteCourse = async (courseId: number): Promise<Course> => {
   try {
     const deletedCourse: Course = await prisma.course.delete({
       where: { id: courseId },
+      include: { site: true },
     });
 
     return deletedCourse;
