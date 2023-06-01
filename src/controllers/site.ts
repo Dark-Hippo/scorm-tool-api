@@ -163,13 +163,34 @@ router.get(
           .send({ message: 'Course not found', isValid: false });
       }
 
-      const entryPoint = site.course.courseEntrypoint;
+      const entryPoint: string = site.course.courseEntrypoint;
 
-      const filepath = req.params[0] ? req.params[0] : entryPoint;
-      const siteDirectory = path.join(contentDirectory, guid, 'course');
+      const filepath: string = req.params[0] ? req.params[0] : entryPoint;
+      console.log('filepath', filepath);
+      let fileDirectory: string = '';
+      let filename: string = '';
 
-      if (existsSync(siteDirectory)) {
-        return res.sendFile(filepath, { root: siteDirectory });
+      if (filepath.includes('/')) {
+        fileDirectory = filepath.substring(0, filepath.lastIndexOf('/'));
+        filename = filepath.substring(filepath.lastIndexOf('/') + 1);
+      } else {
+        fileDirectory = entryPoint.substring(0, entryPoint.lastIndexOf('/'));
+        filename = filepath;
+      }
+
+      if (!filename) {
+        filename = 'index.html';
+      }
+
+      let courseDirectory: string = path.join(
+        contentDirectory,
+        guid,
+        'course',
+        fileDirectory
+      );
+
+      if (existsSync(courseDirectory)) {
+        return res.sendFile(filename, { root: courseDirectory });
       }
 
       return res.status(404).send({
