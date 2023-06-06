@@ -140,6 +140,50 @@ router.get(
   }
 );
 
+router.get(
+  '/:id(\\d+)/:guid/webcontent/*',
+  async (req: Request, res: Response): Promise<Response | void> => {
+    try {
+      const { id, guid } = req.params;
+      const siteId: number = Number(id);
+
+      const site: SiteWithCourse | null = await getSite(siteId);
+
+      if (!site) {
+        return res
+          .status(404)
+          .send({ message: 'Site not found', isValid: false });
+      }
+
+      if (!site.course) {
+        return res
+          .status(404)
+          .send({ message: 'Course not found', isValid: false });
+      }
+
+      const filepath: string = req.params[0] ? req.params[0] : 'index.html';
+
+      let courseDirectory: string = path.join(
+        contentDirectory,
+        guid,
+        'course/scormcontent'
+      );
+
+      if (existsSync(courseDirectory)) {
+        return res.sendFile(filepath, { root: courseDirectory });
+      }
+
+      return res.status(404).send({
+        message: `No site available for '${req.params.guid}'`,
+        isValid: false,
+      });
+    } catch (error) {
+      logError(error);
+      return res.status(500).send(error);
+    }
+  }
+);
+
 // TODO: caching so it doesn't make a call to the database to get the
 // site / course details for every file
 router.get(
