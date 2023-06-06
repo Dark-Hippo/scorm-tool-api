@@ -11,6 +11,7 @@ import {
 import { existsSync } from 'fs';
 import path from 'path';
 import { SiteWithCourse } from '../types/courseAndSite';
+import { deleteSiteFiles } from '../utils/site';
 
 const router: Router = express.Router();
 const contentDirectory = './content';
@@ -106,6 +107,8 @@ router.delete(
 
       await deleteSite(site.id);
 
+      deleteSiteFiles(site.guid);
+
       return res.status(204).send();
     } catch (error) {
       logError(error);
@@ -128,6 +131,50 @@ router.get(
 
       return res.status(404).send({
         message: `No original SCORM file saved for '${req.params.guid}'`,
+        isValid: false,
+      });
+    } catch (error) {
+      logError(error);
+      return res.status(500).send(error);
+    }
+  }
+);
+
+router.get(
+  '/:id(\\d+)/:guid/webcontent/*',
+  async (req: Request, res: Response): Promise<Response | void> => {
+    try {
+      const { id, guid } = req.params;
+      const siteId: number = Number(id);
+
+      const site: SiteWithCourse | null = await getSite(siteId);
+
+      if (!site) {
+        return res
+          .status(404)
+          .send({ message: 'Site not found', isValid: false });
+      }
+
+      if (!site.course) {
+        return res
+          .status(404)
+          .send({ message: 'Course not found', isValid: false });
+      }
+
+      const filepath: string = req.params[0] ? req.params[0] : 'index.html';
+
+      let courseDirectory: string = path.join(
+        contentDirectory,
+        guid,
+        'course/scormcontent'
+      );
+
+      if (existsSync(courseDirectory)) {
+        return res.sendFile(filepath, { root: courseDirectory });
+      }
+
+      return res.status(404).send({
+        message: `No site available for '${req.params.guid}'`,
         isValid: false,
       });
     } catch (error) {
@@ -160,13 +207,34 @@ router.get(
           .send({ message: 'Course not found', isValid: false });
       }
 
-      const entryPoint = site.course.courseEntrypoint;
+      const entryPoint: string = site.course.courseEntrypoint;
 
-      const filepath = req.params[0] ? req.params[0] : entryPoint;
-      const siteDirectory = path.join(contentDirectory, guid, 'course');
+      const filepath: string = req.params[0] ? req.params[0] : entryPoint;
+      console.log('filepath', filepath);
+      let fileDirectory: string = '';
+      let filename: string = '';
 
-      if (existsSync(siteDirectory)) {
-        return res.sendFile(filepath, { root: siteDirectory });
+      if (filepath.includes('/')) {
+        fileDirectory = filepath.substring(0, filepath.lastIndexOf('/'));
+        filename = filepath.substring(filepath.lastIndexOf('/') + 1);
+      } else {
+        fileDirectory = entryPoint.substring(0, entryPoint.lastIndexOf('/'));
+        filename = filepath;
+      }
+
+      if (!filename) {
+        filename = 'index.html';
+      }
+
+      let courseDirectory: string = path.join(
+        contentDirectory,
+        guid,
+        'course',
+        fileDirectory
+      );
+
+      if (existsSync(courseDirectory)) {
+        return res.sendFile(filename, { root: courseDirectory });
       }
 
       return res.status(404).send({
