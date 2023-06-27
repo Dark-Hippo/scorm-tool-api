@@ -12,6 +12,7 @@ import { existsSync } from 'fs';
 import path from 'path';
 import { SiteWithCourse } from '../types/courseAndSite';
 import { deleteSiteFiles } from '../utils/site';
+import { validateAccessToken } from '../middleware/auth0';
 
 const router: Router = express.Router();
 const contentDirectory = './content';
@@ -142,6 +143,7 @@ router.get(
 
 router.get(
   '/:id(\\d+)/:guid/webcontent/*',
+  validateAccessToken,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
       const { id, guid } = req.params;
