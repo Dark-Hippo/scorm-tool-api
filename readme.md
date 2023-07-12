@@ -40,6 +40,16 @@ It's an API, you make calls to the endpoints. No, there's currently no mapping o
 
 Currently on V1, so no authentication is used. V2 will include token based authentication sent with requests.
 
+## AUTH0
+
+There are two auth variables that need to be defined
+
+- AUTH0_AUDIENCE
+- AUTH0_BASE_URL
+
+`AUTH0_AUDIENCE` is the identifier given in the Auth0 settings page of the API
+`AUTH0_BASE_URL` is the issuer base URL (easiest thing to do is look at the quickstart guide for Node.js; that's where I took the code from)
+
 ### Database Updates
 
 1. Edit the schema in `prisma/schema.prisma` and save the file
