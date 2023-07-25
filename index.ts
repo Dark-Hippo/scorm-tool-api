@@ -7,6 +7,8 @@ import user from './src/controllers/user';
 import site from './src/controllers/site';
 import course from './src/controllers/course';
 import bodyParser from 'body-parser';
+import { errorHandler } from './src/middleware/error';
+import { notFoundHandler } from './src/middleware/notFound';
 
 dotenv.config();
 
@@ -27,9 +29,9 @@ server.use('/user', user);
 server.use('/site', site);
 server.use('/course', course);
 
-server.use((req: Request, res: Response, next: NextFunction) =>
-  res.status(404).send('Resource not found')
-);
+server.use(errorHandler);
+
+server.use(notFoundHandler);
 
 server.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

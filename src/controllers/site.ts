@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from 'express';
-import { Site, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
 import {
   createSite,
@@ -12,12 +12,14 @@ import { existsSync } from 'fs';
 import path from 'path';
 import { SiteWithCourse } from '../types/courseAndSite';
 import { deleteSiteFiles } from '../utils/site';
+import { validateAccessToken } from '../middleware/auth0';
 
 const router: Router = express.Router();
 const contentDirectory = './content';
 
 router.get(
   '/:id(\\d+)?',
+  validateAccessToken,
   async (req: Request, res: Response): Promise<Response> => {
     try {
       if (req.params.id) {
@@ -41,20 +43,25 @@ router.get(
   }
 );
 
-router.post('/', async (req: Request, res: Response): Promise<Response> => {
-  try {
-    const site: Prisma.SiteCreateInput = req.body;
-    const newSite = await createSite(site);
+router.post(
+  '/',
+  validateAccessToken,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const site: Prisma.SiteCreateInput = req.body;
+      const newSite = await createSite(site);
 
-    return res.status(201).send(newSite);
-  } catch (error) {
-    logError(error);
-    return res.status(500).send(error);
+      return res.status(201).send(newSite);
+    } catch (error) {
+      logError(error);
+      return res.status(500).send(error);
+    }
   }
-});
+);
 
 router.patch(
   '/:id?',
+  validateAccessToken,
   async (req: Request, res: Response): Promise<Response> => {
     try {
       if (!req.params?.id) {
@@ -93,6 +100,7 @@ router.patch(
 
 router.delete(
   '/:id(\\d+)',
+  validateAccessToken,
   async (req: Request, res: Response): Promise<Response> => {
     try {
       const id: number = Number(req.params.id);
@@ -119,6 +127,7 @@ router.delete(
 
 router.get(
   '/:id(\\d+)/:guid/original',
+  validateAccessToken,
   (req: Request, res: Response): Response | void => {
     try {
       const siteDirectory = path.join(contentDirectory, req.params.guid);
@@ -142,6 +151,7 @@ router.get(
 
 router.get(
   '/:id(\\d+)/:guid/webcontent/*',
+  validateAccessToken,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
       const { id, guid } = req.params;
@@ -188,6 +198,7 @@ router.get(
 // site / course details for every file
 router.get(
   '/:id(\\d+)/:guid/course/*',
+  validateAccessToken,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
       const { id, guid } = req.params;
