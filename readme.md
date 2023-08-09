@@ -14,7 +14,9 @@ Development mode uses nodemon to monitor for file changes.
 
 ## Initial setup
 
-Database connection string should be stored in an environment variable (can use `.env` file) called `DATABASE_URL` [read documentation](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch/relational-databases/connect-your-database-typescript-postgres). Can (probably) use `npm prisma migrate dev` to [generate database and update using migration scripts](https://www.prisma.io/docs/reference/api-reference/command-reference#migrate-dev).
+Database connection string should be stored in an environment variable (can use `.env` file) called `DATABASE_URL` [read documentation](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch/relational-databases/connect-your-database-typescript-postgres).
+
+Can use `npx prisma migrate dev` to [generate database and update using migration scripts](https://www.prisma.io/docs/reference/api-reference/command-reference#migrate-dev).
 
 ## Usage
 
@@ -54,3 +56,19 @@ There are two auth variables that need to be defined
 
 1. Edit the schema in `prisma/schema.prisma` and save the file
 2. Run `npx prisma migrate dev --name <some meaningful name>` to save and apply the migration
+
+## Deployment with fly.io
+
+3 secrets need to be set, `AUTH0_AUDIENCE`, `AUTH0_BASE_URL` and `DATABASE_URL`
+
+```bash
+flyctl secrets set AUTH0_AUDIENCE=<audience>
+flyctl secrets set AUTH0_BASE_URL=<base url>
+flyctl secrets set DATABASE_URL=<database url>
+```
+
+1 GB volume will need expanding
+
+```bash
+flyctl vol extend
+```
