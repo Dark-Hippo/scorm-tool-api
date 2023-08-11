@@ -1,0 +1,31 @@
+# fly.toml app configuration file generated for scorm-tool-api-dev on 2023-08-08T15:20:00+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "scorm-tool-api-dev"
+primary_region = "lhr"
+
+[build]
+
+[mounts]
+source = "content"
+destination = "/usr/src/app/content"
+
+[http_service]
+internal_port = 3001
+force_https = true
+auto_stop_machines = true
+auto_start_machines = true
+min_machines_running = 0
+processes = ["app"]
+
+[[services]]
+internal_port = 3001
+protocol = "tcp"
+
+[[services.ports]]
+port = 3001
+
+[deploy]
+release_command = "npx prisma migrate dev"
