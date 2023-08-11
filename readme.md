@@ -67,8 +67,22 @@ flyctl secrets set AUTH0_BASE_URL=<base url>
 flyctl secrets set DATABASE_URL=<database url>
 ```
 
+The database URL will need to use the internal hostname of the database, which can be found by running
+
+```bash
+flyctl status -a <app name>
+```
+
+On the database app, and using the app name .internal as the hostname (e.g. `scorm-tool-api-db.internal`)
+
 1 GB volume will need expanding
 
 ```bash
 flyctl vol extend
+```
+
+Can be proxied to connect up local UI to the API
+
+```bash
+flyctl proxy 3001 -a <app name>
 ```
