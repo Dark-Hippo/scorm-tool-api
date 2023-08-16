@@ -86,3 +86,7 @@ Can be proxied to connect up local UI to the API
 ```bash
 flyctl proxy 3001 -a <app name>
 ```
+
+### CD pipeline
+
+There is a CD pipeline set up to deploy to fly.io on push to the `master` branch. This is set up in the `fly.toml`, and `.github/workflows/fly.yml` files.
