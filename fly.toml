@@ -29,3 +29,15 @@ port = 3001
 
 [deploy]
 release_command = "npx prisma migrate dev"
+
+[[http_service.checks]]
+interval = "1h"
+method = "GET"
+path = "/health"
+timeout = "5s"
+
+[[http_service.checks]]
+interval = "1h"
+method = "GET"
+path = "/health/db"
+timeout = "5s"
