@@ -6,6 +6,7 @@ import scorm from './src/controllers/scorm';
 import user from './src/controllers/user';
 import site from './src/controllers/site';
 import course from './src/controllers/course';
+import health from './src/controllers/health';
 import bodyParser from 'body-parser';
 import { errorHandler } from './src/middleware/error';
 import { notFoundHandler } from './src/middleware/notFound';
@@ -20,14 +21,12 @@ server.use(fileUpload());
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
 
-server.get('/health', (req: Request, res: Response) => {
-  return res.send({ date: new Date() });
-});
-
 server.use('/scorm', scorm);
 server.use('/user', user);
 server.use('/site', site);
 server.use('/course', course);
+// add health endpoints to server
+server.use('/health', health);
 
 server.use(errorHandler);
 
