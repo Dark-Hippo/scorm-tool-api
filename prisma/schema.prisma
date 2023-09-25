@@ -11,36 +11,38 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  email String @unique
-  name String?
-  sites Site[]
-  courses Course[]
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String?
+  sites       Site[]
+  courses     Course[]
   createdDate DateTime @default(now())
   updatedDate DateTime @default(now())
+  active      Boolean  @default(true)
+  deleted     Boolean  @default(false)
 }
 
 model Course {
-  id Int @id @default(autoincrement())
-  name String
-  language String
-  createdBy User @relation(fields: [createdByUserId], references: [id])
-  createdByUserId Int
-  site Site?
+  id               Int      @id @default(autoincrement())
+  name             String
+  language         String
+  createdBy        User     @relation(fields: [createdByUserId], references: [id])
+  createdByUserId  Int
+  site             Site?
   courseEntrypoint String
-  createdDate DateTime @default(now())
-  updatedDate DateTime @default(now())
+  createdDate      DateTime @default(now())
+  updatedDate      DateTime @default(now())
 }
 
 model Site {
-  id Int @id @default(autoincrement())
-  guid String @unique
-  title String
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId Int @unique
-  lastAccessed DateTime?
-  createdBy User @relation(fields: [createdByUserId], references: [id])
+  id              Int       @id @default(autoincrement())
+  guid            String    @unique
+  title           String
+  course          Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId        Int       @unique
+  lastAccessed    DateTime?
+  createdBy       User      @relation(fields: [createdByUserId], references: [id])
   createdByUserId Int
-  createdDate DateTime @default(now())
-  updatedDate DateTime @default(now())
+  createdDate     DateTime  @default(now())
+  updatedDate     DateTime  @default(now())
 }
