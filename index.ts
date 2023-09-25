@@ -22,7 +22,7 @@ server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
 
 server.use('/scorm', scorm);
-server.use('/user', user);
+server.use('/users', user);
 server.use('/site', site);
 server.use('/course', course);
 // add health endpoints to server
