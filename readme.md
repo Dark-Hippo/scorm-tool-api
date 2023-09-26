@@ -18,6 +18,14 @@ Database connection string should be stored in an environment variable (can use 
 
 Can use `npx prisma migrate dev` to [generate database and update using migration scripts](https://www.prisma.io/docs/reference/api-reference/command-reference#migrate-dev).
 
+The following environment variables are required for the API to work:
+
+- DATABASE_URL
+- AUTH0_AUDIENCE
+- AUTH0_BASE_URL
+- ADMIN_EMAIL
+- ADMIN_NAME
+
 ## Usage
 
 `DATABASE_URL` environment variable is required to work (see [Initial setup](#initial-setup) above)
