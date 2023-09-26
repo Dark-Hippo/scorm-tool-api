@@ -18,6 +18,8 @@ Database connection string should be stored in an environment variable (can use 
 
 Can use `npx prisma migrate dev` to [generate database and update using migration scripts](https://www.prisma.io/docs/reference/api-reference/command-reference#migrate-dev).
 
+There is a seed script to create the admin user, run with `npx prisma db seed` or `npm run seed`.
+
 The following environment variables are required for the API to work:
 
 - DATABASE_URL
