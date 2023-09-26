@@ -1,7 +1,7 @@
-import { log } from 'console';
-import { Stats, rm, rmdir, stat, unlink } from 'fs';
+import { Stats, rm, stat } from 'fs';
 import path from 'path';
 import { CONTENT_DIR } from '../config';
+import { logError } from './logger';
 
 export const deleteSiteFiles = (guid: string): boolean => {
   try {
@@ -26,7 +26,7 @@ export const deleteSiteFiles = (guid: string): boolean => {
 
     return false;
   } catch (error) {
-    log(error as string);
+    logError(error);
     throw error;
   }
 };
