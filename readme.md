@@ -40,7 +40,7 @@ It's an API, you make calls to the endpoints. No, there's currently no mapping o
 
 ## Notes
 
-Currently on V1, so no authentication is used. V2 will include token based authentication sent with requests.
+V2 includes token based authentication sent with requests.
 
 ## AUTH0
 
