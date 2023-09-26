@@ -14,7 +14,6 @@ model User {
   id          Int      @id @default(autoincrement())
   email       String   @unique
   name        String?
-  sites       Site[]
   courses     Course[]
   createdDate DateTime @default(now())
   updatedDate DateTime @default(now())
@@ -23,26 +22,15 @@ model User {
 }
 
 model Course {
-  id               Int      @id @default(autoincrement())
-  name             String
+  id               Int       @id @default(autoincrement())
+  filename         String
+  guid             String    @unique
+  title            String
   language         String
-  createdBy        User     @relation(fields: [createdByUserId], references: [id])
+  lastAccessed     DateTime?
+  createdBy        User      @relation(fields: [createdByUserId], references: [id])
   createdByUserId  Int
-  site             Site?
   courseEntrypoint String
-  createdDate      DateTime @default(now())
-  updatedDate      DateTime @default(now())
-}
-
-model Site {
-  id              Int       @id @default(autoincrement())
-  guid            String    @unique
-  title           String
-  course          Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId        Int       @unique
-  lastAccessed    DateTime?
-  createdBy       User      @relation(fields: [createdByUserId], references: [id])
-  createdByUserId Int
-  createdDate     DateTime  @default(now())
-  updatedDate     DateTime  @default(now())
+  createdDate      DateTime  @default(now())
+  updatedDate      DateTime  @default(now())
 }
