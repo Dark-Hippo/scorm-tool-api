@@ -51,7 +51,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-router.patch('/:id?', async (req: Request, res: Response) => {
+router.put('/:id?', async (req: Request, res: Response) => {
   try {
     if (!req.params?.id) {
       return res
