@@ -11,14 +11,15 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  name        String?
-  courses     Course[]
-  createdDate DateTime @default(now())
-  updatedDate DateTime @default(now())
-  active      Boolean  @default(true)
-  deleted     Boolean  @default(false)
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  name         String?
+  courses      Course[]
+  createdDate  DateTime  @default(now())
+  updatedDate  DateTime  @default(now())
+  active       Boolean   @default(true)
+  deleted      Boolean   @default(false)
+  lastLoggedIn DateTime?
 }
 
 model Course {
