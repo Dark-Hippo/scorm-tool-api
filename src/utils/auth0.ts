@@ -1,5 +1,6 @@
 import { User } from '@prisma/client';
-import { logError } from './logger';
+import { log, logError } from './logger';
+import { generate } from 'generate-password';
 
 export const createUser = async (user: User): Promise<void> => {
   try {
@@ -10,11 +11,21 @@ export const createUser = async (user: User): Promise<void> => {
     if (!auth0ApiToken)
       throw new Error('AUTH0_MANAGEMENT_API_TOKEN is not defined');
 
+    const password = generate({
+      length: 10,
+      numbers: true,
+      symbols: true,
+      uppercase: true,
+      lowercase: true,
+      excludeSimilarCharacters: true,
+      exclude: '()+_-=}{[]|:;"/?.><,`~\'-_\\',
+    });
+
     const body = JSON.stringify({
       email: user.email,
       name: user.name,
       connection: 'Username-Password-Authentication',
-      password: 'Sy!CTt6V$)Ga&h:M',
+      password: password,
       email_verified: false,
       user_id: user.id.toString(),
     });
@@ -35,7 +46,7 @@ export const createUser = async (user: User): Promise<void> => {
 
     const data = await response.json();
 
-    console.log(`Created user with id: ${data.user_id}`);
+    log(`Created user with id: ${data.user_id}`);
   } catch (error) {
     if (error instanceof TypeError) {
       logError(`Network error: ${error.message}`);
