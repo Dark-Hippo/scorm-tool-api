@@ -1,5 +1,6 @@
 import { PrismaClient, User } from '@prisma/client';
 import { logError } from '../utils/logger';
+import { createUser as createAuth0User } from '../utils/auth0';
 
 const prisma: PrismaClient = new PrismaClient();
 
@@ -36,6 +37,8 @@ export const createUser = async (user: User): Promise<User> => {
     const createdUser = await prisma.user.create({
       data: user,
     });
+
+    createAuth0User(createdUser);
 
     return createdUser;
   } catch (error) {
