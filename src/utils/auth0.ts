@@ -2,7 +2,7 @@ import { User } from '@prisma/client';
 import { log, logError } from './logger';
 import { generate } from 'generate-password';
 
-export const createUser = async (user: User): Promise<void> => {
+export const createUser = async (user: User): Promise<string> => {
   try {
     const auth0BaseUrl = process.env.AUTH0_BASE_URL;
     const auth0ApiToken = process.env.AUTH0_MANAGEMENT_API_TOKEN;
@@ -19,6 +19,7 @@ export const createUser = async (user: User): Promise<void> => {
       lowercase: true,
       excludeSimilarCharacters: true,
       exclude: '()+_-=}{[]|:;"/?.><,`~\'-_\\',
+      strict: true,
     });
 
     const body = JSON.stringify({
@@ -47,6 +48,8 @@ export const createUser = async (user: User): Promise<void> => {
     const data = await response.json();
 
     log(`Created user with id: ${data.user_id}`);
+
+    return data.user_id;
   } catch (error) {
     if (error instanceof TypeError) {
       logError(`Network error: ${error.message}`);
@@ -55,5 +58,6 @@ export const createUser = async (user: User): Promise<void> => {
     } else {
       logError(error);
     }
+    throw error;
   }
 };
