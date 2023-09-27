@@ -105,3 +105,48 @@ export const updateUser = async (user: User): Promise<void> => {
     throw error;
   }
 };
+
+/**
+ * Blocks a user in Auth0
+ * @param userId auth0Id of the user to block
+ */
+export const blockUser = async (user: User): Promise<void> => {
+  try {
+    if (!user.auth0Id) throw new Error('auth0Id is not set');
+
+    const auth0BaseUrl = process.env.AUTH0_BASE_URL;
+    const auth0ApiToken = process.env.AUTH0_MANAGEMENT_API_TOKEN;
+
+    if (!auth0BaseUrl) throw new Error('AUTH0_BASE_URL is not defined');
+    if (!auth0ApiToken)
+      throw new Error('AUTH0_MANAGEMENT_API_TOKEN is not defined');
+
+    const response = await fetch(
+      `${auth0BaseUrl}api/v2/users/${user.auth0Id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${auth0ApiToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ blocked: true }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorBody = await response.json();
+      throw new Error(`Failed to block user: ${errorBody.message}`);
+    }
+
+    log(`Blocked user with id: ${user.id}`);
+  } catch (error) {
+    if (error instanceof TypeError) {
+      logError(`Network error: ${error.message}`);
+    } else if (error instanceof SyntaxError) {
+      logError(`Invalid response body: ${error.message}`);
+    } else {
+      logError(error);
+    }
+    throw error;
+  }
+};
