@@ -38,7 +38,14 @@ export const createUser = async (user: User): Promise<User> => {
       data: user,
     });
 
-    createAuth0User(createdUser);
+    const auth0Id = await createAuth0User(createdUser);
+
+    createdUser.auth0Id = auth0Id;
+
+    await prisma.user.update({
+      where: { id: createdUser.id },
+      data: { auth0Id: auth0Id },
+    });
 
     return createdUser;
   } catch (error) {
