@@ -1,6 +1,9 @@
 import { PrismaClient, User } from '@prisma/client';
 import { logError } from '../utils/logger';
-import { createUser as createAuth0User } from '../utils/auth0';
+import {
+  createUser as createAuth0User,
+  updateUser as updateAuth0User,
+} from '../utils/auth0';
 
 const prisma: PrismaClient = new PrismaClient();
 
@@ -69,6 +72,8 @@ export const updateUser = async (
       where: { id: userId },
       data: updatedDetails,
     });
+
+    updateAuth0User(updatedUser);
 
     return updatedUser;
   } catch (error) {
