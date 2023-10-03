@@ -6,6 +6,7 @@ import {
   deleteUser,
   getAllUsers,
   getUser,
+  getUserByEmail,
   updateUser,
 } from '../adapters/user';
 import { validateAccessToken } from '../middleware/auth0';
@@ -37,6 +38,27 @@ router.get(
         const users = await getAllUsers();
         return res.status(200).send(users);
       }
+    } catch (error) {
+      logError(error);
+      return res.status(500).send(error);
+    }
+  }
+);
+
+router.get(
+  '/email/:email',
+  validateAccessToken,
+  async (req: Request, res: Response) => {
+    try {
+      const email: string = req.params.email;
+      const user = await getUserByEmail(email);
+      if (!user) {
+        return res
+          .status(404)
+          .send({ message: 'User not found', isValid: false });
+      }
+
+      return res.status(200).send(user);
     } catch (error) {
       logError(error);
       return res.status(500).send(error);

@@ -4,6 +4,7 @@ import {
   createUser as createAuth0User,
   updateUser as updateAuth0User,
   blockUser as blockAuth0User,
+  getUser as getAuth0User,
 } from '../utils/auth0';
 
 const prisma: PrismaClient = new PrismaClient();
@@ -12,6 +13,27 @@ export const getUser = async (id: number): Promise<User | null> => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: id },
+    });
+
+    if (!user) return null;
+
+    if (user.auth0Id) {
+      await getAuth0User(user.auth0Id);
+    }
+
+    return user;
+  } catch (error) {
+    logError(error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: email },
     });
 
     return user;
