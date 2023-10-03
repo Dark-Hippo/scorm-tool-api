@@ -1,6 +1,5 @@
 import { Course, PrismaClient, Prisma } from '@prisma/client';
 import { logError } from '../utils/logger';
-import type { CourseWithSite } from '../types/courseAndSite';
 
 const prisma: PrismaClient = new PrismaClient();
 
@@ -19,18 +18,13 @@ export const getCourse = async (id: number): Promise<Course | null> => {
   }
 };
 
-export const getCourseWithSite = async (
-  id: number
-): Promise<CourseWithSite | null> => {
+export const getCourseWithSite = async (id: number): Promise<Course | null> => {
   try {
-    const courseWithSite = await prisma.course.findUnique({
+    const course = await prisma.course.findUnique({
       where: { id: id },
-      include: {
-        site: true,
-      },
     });
 
-    return courseWithSite;
+    return course;
   } catch (error) {
     logError(error);
     throw error;
@@ -52,17 +46,11 @@ export const getAllCourses = async (): Promise<Course[] | null> => {
   }
 };
 
-export const getAllCoursesWithSites = async (): Promise<
-  CourseWithSite[] | null
-> => {
+export const getAllCoursesWithSites = async (): Promise<Course[] | null> => {
   try {
-    const allCoursesWithSites = await prisma.course.findMany({
-      include: {
-        site: true,
-      },
-    });
+    const courses = await prisma.course.findMany({});
 
-    return allCoursesWithSites;
+    return courses;
   } catch (error) {
     logError(error);
     throw error;
@@ -73,13 +61,10 @@ export const getAllCoursesWithSites = async (): Promise<
 
 export const createCourse = async (
   course: Prisma.CourseCreateInput
-): Promise<CourseWithSite> => {
+): Promise<Course> => {
   try {
     const createdCourse = await prisma.course.create({
       data: course,
-      include: {
-        site: true,
-      },
     });
 
     return createdCourse;
@@ -118,7 +103,6 @@ export const deleteCourse = async (courseId: number): Promise<Course> => {
   try {
     const deletedCourse: Course = await prisma.course.delete({
       where: { id: courseId },
-      include: { site: true },
     });
 
     return deletedCourse;

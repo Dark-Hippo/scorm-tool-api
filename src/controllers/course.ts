@@ -144,9 +144,7 @@ router.delete(
 
       await deleteCourse(course.id);
 
-      if (course.site) {
-        deleteSiteFiles(course.site.guid);
-      }
+      deleteSiteFiles(course.guid);
 
       return res.status(204).send();
     } catch (error) {

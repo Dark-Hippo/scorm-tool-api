@@ -5,8 +5,6 @@ import { isZipFile } from '../validation/isZipFile';
 import { getScormDetails, saveScormToContent } from '../utils/scorm';
 import { Prisma } from '@prisma/client';
 import { createCourse } from '../adapters/course';
-import { createSite } from '../adapters/site';
-import { getCourse } from '../adapters/course';
 
 const router: Router = express.Router();
 
@@ -117,34 +115,17 @@ router.post('/upload', async (req: Request, res: Response) => {
     const siteId = await saveScormToContent(file, true);
 
     const course: Prisma.CourseCreateInput = {
-      name: title,
+      title: title,
       language: language,
+      guid: siteId,
+      filename: file.name,
       createdBy: { connect: { id: Number(userId) } },
-      site: {
-        create: {
-          guid: siteId,
-          title: file.name,
-          createdBy: { connect: { id: Number(userId) } },
-        },
-      },
+
       courseEntrypoint: courseEntrypoint,
     };
 
     const createdCourse = await createCourse(course);
-    let guid = createdCourse.site?.guid;
-
-    if (!createdCourse.site) {
-      const site: Prisma.SiteCreateInput = {
-        guid: siteId,
-        title: file.name,
-        createdBy: { connect: { id: Number(userId) } },
-        course: { connect: { id: createdCourse.id } },
-      };
-
-      const createdSite = await createSite(site);
-      createdCourse.site = createdSite;
-      guid = createdSite.guid;
-    }
+    let guid = createdCourse.guid;
 
     return res.status(201).location(`site/${guid}/course`).send({
       isValid: true,

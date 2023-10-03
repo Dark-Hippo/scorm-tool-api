@@ -4,7 +4,6 @@ import cors from 'cors';
 import fileUpload from 'express-fileupload';
 import scorm from './src/controllers/scorm';
 import user from './src/controllers/user';
-import site from './src/controllers/site';
 import course from './src/controllers/course';
 import health from './src/controllers/health';
 import bodyParser from 'body-parser';
@@ -22,8 +21,7 @@ server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
 
 server.use('/scorm', scorm);
-server.use('/user', user);
-server.use('/site', site);
+server.use('/users', user);
 server.use('/course', course);
 // add health endpoints to server
 server.use('/health', health);
