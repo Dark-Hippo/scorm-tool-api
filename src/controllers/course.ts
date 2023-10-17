@@ -5,9 +5,7 @@ import {
   createCourse,
   deleteCourse,
   getAllCourses,
-  getAllCoursesWithSites,
   getCourse,
-  getCourseWithSite,
   updateCourse,
 } from '../adapters/course';
 import { deleteSiteFiles } from '../utils/site';
@@ -34,41 +32,6 @@ router.get(
         const courses = await getAllCourses();
         return res.status(200).send(courses);
       }
-    } catch (error) {
-      logError(error);
-      return res.status(500).send(error);
-    }
-  }
-);
-
-router.get(
-  '/site',
-  validateAccessToken,
-  async (req: Request, res: Response) => {
-    try {
-      const coursesWithSites = await getAllCoursesWithSites();
-      return res.status(200).send(coursesWithSites);
-    } catch (error) {
-      logError(error);
-      return res.status(500).send(error);
-    }
-  }
-);
-
-router.get(
-  '/:id(\\d+)/site',
-  validateAccessToken,
-  async (req: Request, res: Response) => {
-    try {
-      const id: number = Number(req.params.id);
-      const courseWithSite = await getCourseWithSite(id);
-      if (!courseWithSite) {
-        return res
-          .status(404)
-          .send({ message: 'Course not found', isValid: false });
-      }
-
-      return res.status(200).send(courseWithSite);
     } catch (error) {
       logError(error);
       return res.status(500).send(error);
@@ -134,7 +97,7 @@ router.delete(
     try {
       const id: number = Number(req.params.id);
 
-      const course = await getCourseWithSite(id);
+      const course = await getCourse(id);
 
       if (!course) {
         return res

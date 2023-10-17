@@ -18,39 +18,11 @@ export const getCourse = async (id: number): Promise<Course | null> => {
   }
 };
 
-export const getCourseWithSite = async (id: number): Promise<Course | null> => {
-  try {
-    const course = await prisma.course.findUnique({
-      where: { id: id },
-    });
-
-    return course;
-  } catch (error) {
-    logError(error);
-    throw error;
-  } finally {
-    await prisma.$disconnect();
-  }
-};
-
 export const getAllCourses = async (): Promise<Course[] | null> => {
   try {
     const allCourses = await prisma.course.findMany();
 
     return allCourses;
-  } catch (error) {
-    logError(error);
-    throw error;
-  } finally {
-    await prisma.$disconnect();
-  }
-};
-
-export const getAllCoursesWithSites = async (): Promise<Course[] | null> => {
-  try {
-    const courses = await prisma.course.findMany({});
-
-    return courses;
   } catch (error) {
     logError(error);
     throw error;
