@@ -10,6 +10,8 @@ import bodyParser from 'body-parser';
 import site from './src/controllers/site';
 import { errorHandler } from './src/middleware/error';
 import { notFoundHandler } from './src/middleware/notFound';
+import jwksRsa, { GetVerificationKey } from 'jwks-rsa';
+import { expressjwt, Request as JWTRequest } from 'express-jwt';
 
 dotenv.config();
 
@@ -23,10 +25,11 @@ server.use(bodyParser.urlencoded({ extended: false }));
 
 server.use(
   '/content',
-  (req: Request, res: Response, next: any) => {
+  //add authentication here
+  (req: JWTRequest, res: Response, next: any) => {
     console.log(req.path);
     console.log(req.headers);
-    // authenticate auth0 cookie
+    // authenticated successfully
 
     next();
   },

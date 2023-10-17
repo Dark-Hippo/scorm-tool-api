@@ -23,9 +23,11 @@
     "dotenv": "16.0.3",
     "express": "4.18.2",
     "express-fileupload": "1.4.0",
+    "express-jwt": "^8.4.1",
     "express-oauth2-jwt-bearer": "1.5.0",
     "fast-xml-parser": "4.3.1",
     "generate-password": "1.7.0",
+    "jwks-rsa": "^3.1.0",
     "prisma": "5.3.1",
     "uuid": "9.0.0"
   },
