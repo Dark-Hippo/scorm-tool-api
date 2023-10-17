@@ -1,4 +1,4 @@
-import express, { Express, NextFunction, Request, Response } from 'express';
+import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
@@ -7,8 +7,11 @@ import user from './src/controllers/user';
 import course from './src/controllers/course';
 import health from './src/controllers/health';
 import bodyParser from 'body-parser';
+import site from './src/controllers/site';
 import { errorHandler } from './src/middleware/error';
 import { notFoundHandler } from './src/middleware/notFound';
+import jwksRsa, { GetVerificationKey } from 'jwks-rsa';
+import { expressjwt, Request as JWTRequest } from 'express-jwt';
 
 dotenv.config();
 
@@ -20,9 +23,23 @@ server.use(fileUpload());
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
 
+server.use(
+  '/content',
+  //add authentication here
+  (req: JWTRequest, res: Response, next: any) => {
+    console.log(req.path);
+    console.log(req.headers);
+    // authenticated successfully
+
+    next();
+  },
+  express.static('./content')
+);
+
 server.use('/scorm', scorm);
 server.use('/users', user);
 server.use('/course', course);
+server.use('/site', site);
 // add health endpoints to server
 server.use('/health', health);
 
